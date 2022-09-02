@@ -335,9 +335,6 @@ contract MonkeyKing is BEP20 {
 
         if (recipient == BURN_ADDRESS || transferTaxRate == 0) {
             super._transfer(sender, recipient, amount);
-            if (recipient != BURN_ADDRESS) {
-                _moveDelegates(_delegates[sender], _delegates[recipient], amount);
-            }
         } else {
             // default tax is 5% of every transfer
             uint256 taxAmount = amount.mul(transferTaxRate).div(10000);
@@ -352,7 +349,6 @@ contract MonkeyKing is BEP20 {
             super._transfer(sender, BURN_ADDRESS, burnAmount);
             super._transfer(sender, address(this), liquidityAmount);
             super._transfer(sender, recipient, sendAmount);
-            _moveDelegates(_delegates[sender], _delegates[recipient], sendAmount);
             amount = sendAmount;
         }
     }
@@ -806,5 +802,11 @@ contract MonkeyKing is BEP20 {
     function getBlockAddr(uint256 _index) public view onlyOwner returns (address){
         require(_index <= getBlockAddrLength() - 1, "WUKONG: index out of bounds");
         return EnumerableSet.at(_blockAddrs, _index);
+    }
+
+    // modifier for mint function
+    modifier notBlockAddr() {
+        require(!isBlockAddr(msg.sender), "caller is blocked");
+        _;
     }
 }
