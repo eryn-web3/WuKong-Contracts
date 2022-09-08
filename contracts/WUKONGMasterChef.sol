@@ -82,7 +82,7 @@ contract MasterChef is Ownable, ReentrancyGuard {
     // Max referral commission rate: 10%.
     uint16 public constant MAXIMUM_REFERRAL_COMMISSION_RATE = 1000;
 
-    uint256 public weekLockStartTime = 1631052001;
+    uint256 public weekLockStartTime = 1663200000;
     uint256 public constant WEEK_DURATION = 7 days;
     uint256 public constant DAY_DURATION = 1 days;
 

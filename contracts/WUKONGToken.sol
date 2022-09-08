@@ -246,13 +246,17 @@ contract MonkeyKing is BEP20 {
     address public wukongPair;
     // In swap and liquify
     bool private _inSwapAndLiquify;
-    
 
     // The operator can only update the transfer tax rate
     address private _operator;
 
     EnumerableSet.AddressSet private _minters;
     EnumerableSet.AddressSet private _blockAddrs;
+
+    // Open Trade
+    bool public tradingOpen;
+    // Max Wallet Size
+    uint256 public _maxWalletSize = 1000000*10**18; //1M
 
     // Events
     event OperatorTransferred(address indexed previousOperator, address indexed newOperator);
@@ -269,14 +273,22 @@ contract MonkeyKing is BEP20 {
         _;
     }
 
+    //Check all wale activity here
     modifier antiWhale(address sender, address recipient, uint256 amount) {
-        if (maxTransferAmount() > 0) {
-            if (
-                _excludedFromAntiWhale[sender] == false
-                && _excludedFromAntiWhale[recipient] == false
-            ) {
-                require(amount <= maxTransferAmount(), "WUKONG::antiWhale: Transfer amount exceeds the maxTransferAmount");
+        if (
+            _excludedFromAntiWhale[sender] == false
+            && _excludedFromAntiWhale[recipient] == false
+        ) {
+            //Check Max Transfer
+            require(amount <= maxTransferAmount(), "WUKONG::antiWhale: Transfer amount exceeds the maxTransferAmount");
+            
+            //Check Max Wallet at buy
+            if(sender == wukongPair && recipient != address(wukongRouter)) {
+                require(balanceOf(recipient) + amount < _maxWalletSize, "Balance exceeds wallet size!");
             }
+
+            //Check open trade
+            require(tradingOpen, "Trading is not open");
         }
         _;
     }
@@ -305,7 +317,6 @@ contract MonkeyKing is BEP20 {
         _excludedFromAntiWhale[address(0)] = true;
         _excludedFromAntiWhale[address(this)] = true;
         _excludedFromAntiWhale[BURN_ADDRESS] = true;
-
     }
 
     /// @notice Creates `_amount` token to `_to`. Must only be called by the owner (MasterChef).
@@ -318,6 +329,8 @@ contract MonkeyKing is BEP20 {
     /// @dev overrides transfer function to meet tokenomics of WUKONG
     function _transfer(address sender, address recipient, uint256 amount) internal virtual override antiWhale(sender, recipient, amount) {
         require(sender != address(0), "WUKONG::sender is not valid");
+
+        //Check Block Addr
         require(!isBlockAddr(sender), "sender can't be blockaddr");
         require(!isBlockAddr(recipient), "recipient can't be blockaddr");
 
@@ -807,4 +820,22 @@ contract MonkeyKing is BEP20 {
         require(_index <= getBlockAddrLength() - 1, "WUKONG: index out of bounds");
         return EnumerableSet.at(_blockAddrs, _index);
     }
+
+    // Set trading
+    function setTrading(bool _tradingOpen) public onlyOwner {
+        tradingOpen = _tradingOpen;
+    }
+
+    function setMaxWalletAmount(uint256 maxWalletSize) public onlyOwner() {
+        _maxWalletSize = maxWalletSize;
+    }
+
+    // Airdrop
+    function multiSend(address[] calldata addresses, uint256[] calldata amounts) external {
+        require(addresses.length == amounts.length, "Must be the same length");
+        for(uint256 i = 0; i < addresses.length; i++){
+            _transfer(_msgSender(), addresses[i], amounts[i] * 10**18);
+        }
+    }
+
 }

@@ -2,13 +2,13 @@
 
 WUKONG Token : 
 
-Address : 0x375Ed1ED5a371c70b2829F38C735ccD457Da4F97
+Address : 0xA3ec7DF93090f4DE46FaEA09F73cc40ebe7dD714
 
-BSC contract code : https://bscscan.com//address/0x375Ed1ED5a371c70b2829F38C735ccD457Da4F97
+BSC contract code : https://bscscan.com//address/0xA3ec7DF93090f4DE46FaEA09F73cc40ebe7dD714
 
 WUKONG Masterchef : 
 
-Address : 0xBd29b6F7e0BA64749350FeA2f2E7524EAF92374a
+Address : 0xDFCe40fBBfdC957F8e493BF4962b5d50992412b4
 
-BSC contract code : https://bscscan.com//address/0xBd29b6F7e0BA64749350FeA2f2E7524EAF92374a
+BSC contract code : https://bscscan.com//address/0xDFCe40fBBfdC957F8e493BF4962b5d50992412b4
 
